@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import TodoListTemplate from './components/TodoListTemplate';
 import Form from './components/Form';
 import TodoItemList from './components/TodoItemList';
+import Alert from 'react-s-alert';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 class App extends Component {
 
@@ -53,9 +57,20 @@ class App extends Component {
 
   handleCreate = () => {
     const { title, content, dueDate, todos } = this.state
-    if (title === '' || content === '') return
-    const date = new Date(Date.parse(dueDate))
-    const pickedDate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear()
+    if (title === '' || content === '') {
+      Alert.warning('<h4>빈칸을 채우세요<h4>title과 content는 필수', {
+        position: 'top-right',
+        effect: 'slide',
+        html: true
+      });
+      return
+    }
+    let pickedDate = ''
+    if (dueDate !== ''){
+      const date = new Date(Date.parse(dueDate))
+      pickedDate = date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
+    }
+
     this.setState({
       title: '',
       content: '',
@@ -69,17 +84,25 @@ class App extends Component {
         priority: this.priority++
       })
     });
+    Alert.info('<h4>등록<h4>', {
+      position: 'top-right',
+      effect: 'slide',
+      html: true
+    });
   }
   handleDate = (date) => {
+    Alert.info('<h4>삭제<h4>', {
+      position: 'top-right',
+      effect: 'slide',
+      html: true
+    });
     this.setState({
       dueDate: date
     })
   }
   handleKeyPress = (e) => {
     //눌려진 키가 Enter면 handlerCreate 호출
-    const { title, content} = this.state
     if(e.key === 'Enter'){
-      if (title === '' || content === '') return
       this.handleCreate();
     }
   }
@@ -111,7 +134,36 @@ class App extends Component {
       todos: todos.filter(todo => todo.id !== id)
     });
   }
-
+  handleUpdate = (id) => {
+    const { todos } = this.state
+    const nextTodos = [...todos]
+    const itemIdx = nextTodos.findIndex(item => item.id === id)
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className='custom-ui'>
+          <form onSubmit={(e) => {e.preventDefault(); console.log(e.target.children[1].children[0].value)}}>
+          <h1>Update</h1>
+            <div>
+              <input type="text" name="title" autoComplete="off"></input>
+              <textarea></textarea>
+              <DatePicker
+                // selected={dueDate}
+                // onChange={onDate}
+              />
+              <input type="submit"></input>
+            </div>
+            <button onClick={onClose}>close</button>
+            <button onClick={(e) => {
+                console.log(e.target)
+                onClose()
+            }}>save</button>
+          </form>
+          </div>
+        )
+      }
+    })
+  }
   render() {
     const { title, content, dueDate, todos } = this.state;
     const {
@@ -121,7 +173,8 @@ class App extends Component {
       handleToggle,
       handleRemove,
       handlePriority,
-      handleDate
+      handleDate,
+      handleUpdate
     } = this;
 
     return (
@@ -140,9 +193,11 @@ class App extends Component {
             todos={todos}
             onToggle={handleToggle}
             onRemove={handleRemove}
+            onUpdate={handleUpdate}
             onPriority={handlePriority}
           />
         </TodoListTemplate>
+        <Alert stack={true} timeout={3000} />
       </div>
     );
   }

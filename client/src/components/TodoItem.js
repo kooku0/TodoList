@@ -7,7 +7,7 @@ class TodoItem extends Component {
   // }
   
   render() {
-    const { title, content, dueDate, checked, id, onToggle, onRemove, onPriority } = this.props;
+    const { title, content, dueDate, checked, id, onToggle, onRemove, onUpdate, onPriority } = this.props;
     
     // console.log(id);
 
@@ -38,7 +38,7 @@ class TodoItem extends Component {
           className="update"
           onClick={(e) => {
             e.stopPropagation(); // onToggle 이 실행되지 않도록 함
-            onRemove(id)
+            onUpdate(id)
           }
         }>수정</div>
         

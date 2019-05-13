@@ -23,9 +23,9 @@ const Form = ({title, content, dueDate, onChange, onCreate, onKeyPress, onDate})
           placeholder="content..."
         />
         <DatePicker
-        selected={dueDate}
-        onChange={onDate}
-      />
+          selected={dueDate}
+          onChange={onDate}
+        />
       </div>
       <div className="create-button" onClick={onCreate}>
         <div>추가</div>
