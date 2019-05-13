@@ -1,0 +1,31 @@
+{
+  "name": "todo-list",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "^4.2.1",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.6",
+    "react": "^16.7.0",
+    "react-datepicker": "^2.5.0",
+    "react-dom": "^16.7.0",
+    "react-popupbox": "^2.0.8",
+    "react-scripts": "2.1.1",
+    "tether": "^1.4.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

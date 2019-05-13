@@ -1,0 +1,102 @@
+.todo-item {
+  padding: 1rem;
+  display: flex;
+  align-items: center; /* 세로 가운데 정렬 */
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.todo-item:hover {
+  background: #e3fafc;
+}
+
+/* todo-item 에 마우스가 있을때만 .remove 보이기 */
+.todo-item:hover .arrow {
+  opacity: 0.3;
+}
+.todo-item:hover .arrow:hover {
+  opacity: 1;
+}
+.todo-item:hover .update {
+  opacity: 1;
+}
+.todo-item:hover .remove {
+  opacity: 1;
+}
+
+/* todo-item 사이에 윗 테두리 */
+.todo-item + .todo-item {
+  border-top: 1px solid #f1f3f5;
+}
+
+
+.remove {
+  margin-right: 1rem;
+  color: #e64980;
+  font-weight: 600;
+  opacity: 0.5;
+}
+
+.update {
+  margin-right: 1rem;
+  color: #0080FF;
+  font-weight: 600;
+  opacity: 0.5;
+}
+
+.todo-text {
+  flex: 1; /* 체크, 엑스를 제외한 공간 다 채우기 */
+  word-break: break-all;
+}
+
+.checked {
+  text-decoration: line-through;
+  color: #adb5bd;
+}
+
+.check-mark {
+  font-size: 1.5rem;
+  line-height: 1rem;
+  margin-left: 1rem;
+  color: #3bc9db;
+  font-weight: 800;
+  margin-right: 10px;
+}
+.arrows{
+  margin-right: 30px;
+}
+.arrow{
+  border: 10px solid transparent;
+  background-color: rgba( 255, 255, 255, 0 );
+  margin: 0;
+  padding: 0;
+  /* float: left; */
+  display: block !important;
+  opacity: 0.2;
+}
+/* .arrow:hover{
+  border: 12px solid transparent;
+} */
+
+.arrow.down{
+  border-top-color: #FA5882; 
+  transform: rotate(0deg) translate(0px, 15px);
+  -webkit-transform: rotate(0deg) translate(0px, 15px);
+  -moz-transform: rotate(0deg) translate(0px, 15px);
+  -o-transform: rotate(0deg) translate(0px, 15px);
+  -ms-transform: rotate(0deg) translate(0px, 15px);
+}
+.arrow.up{
+  border-top-color: #8181F7; 
+  transform: rotate(180deg) translate(0px, 15px);
+  -webkit-transform: rotate(180deg) translate(0px, 15px);
+  -moz-transform: rotate(180deg) translate(0px, 15px);
+  -o-transform: rotate(180deg) translate(0px, 15px);
+  -ms-transform: rotate(180deg) translate(0px, 15px) translate(0px, 15px);
+}
+
+.dueDate{
+  margin-bottom: 5px;
+  color: red;
+}
