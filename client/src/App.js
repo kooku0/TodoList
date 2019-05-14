@@ -2,10 +2,8 @@ import React, { Component } from 'react';
 import TodoListTemplate from './components/TodoListTemplate';
 import Form from './components/Form';
 import TodoItemList from './components/TodoItemList';
+import Popup from './components/Popup'
 import Alert from 'react-s-alert';
-import { confirmAlert } from 'react-confirm-alert'; // Import
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 class App extends Component {
 
@@ -19,7 +17,12 @@ class App extends Component {
       { id: 0, title: ' 리액트 소개0', content: '단방향 바인딩', dueDate: '', checked: false },
       { id: 1, title: ' 리액트 소개1', content: '단방향 바인딩', dueDate: '', checked: true },
       { id: 2, title: ' 리액트 소개2', content: '단방향 바인딩', dueDate: '', checked: false }
-    ]
+    ],
+    popup: {
+      flag: false,
+      state: '',
+      updateID: -1
+    }
   }
   handlePriority = (id, arrow) => {
     const { todos } = this.state
@@ -65,11 +68,11 @@ class App extends Component {
       });
       return
     }
-    let pickedDate = ''
-    if (dueDate !== ''){
-      const date = new Date(Date.parse(dueDate))
-      pickedDate = date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
-    }
+    // let pickedDate = ''
+    // if (dueDate !== ''){
+    //   const date = new Date(Date.parse(dueDate))
+    //   pickedDate = date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
+    // }
 
     this.setState({
       title: '',
@@ -78,7 +81,7 @@ class App extends Component {
       todos: todos.concat({
         id: this.id++,
         title: title,
-        dueDate: pickedDate,
+        dueDate: dueDate,
         content: content,
         checked: false,
         priority: this.priority++
@@ -89,13 +92,9 @@ class App extends Component {
       effect: 'slide',
       html: true
     });
+    this.handleClose()
   }
   handleDate = (date) => {
-    Alert.info('<h4>삭제<h4>', {
-      position: 'top-right',
-      effect: 'slide',
-      html: true
-    });
     this.setState({
       dueDate: date
     })
@@ -133,39 +132,80 @@ class App extends Component {
     this.setState({
       todos: todos.filter(todo => todo.id !== id)
     });
+    Alert.info('<h4>삭제<h4>', {
+      position: 'top-right',
+      effect: 'slide',
+      html: true
+    });
   }
-  handleUpdate = (id) => {
-    const { todos } = this.state
-    const nextTodos = [...todos]
-    const itemIdx = nextTodos.findIndex(item => item.id === id)
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className='custom-ui'>
-          <form onSubmit={(e) => {e.preventDefault(); console.log(e.target.children[1].children[0].value)}}>
-          <h1>Update</h1>
-            <div>
-              <input type="text" name="title" autoComplete="off"></input>
-              <textarea></textarea>
-              <DatePicker
-                // selected={dueDate}
-                // onChange={onDate}
-              />
-              <input type="submit"></input>
-            </div>
-            <button onClick={onClose}>close</button>
-            <button onClick={(e) => {
-                console.log(e.target)
-                onClose()
-            }}>save</button>
-          </form>
-          </div>
-        )
-      }
+  handleUpdate = () => {
+    const { title, content, dueDate, todos, popup } = this.state
+    if (title === '' || content === '') {
+      Alert.warning('<h4>빈칸을 채우세요<h4>title과 content는 필수', {
+        position: 'top-right',
+        effect: 'slide',
+        html: true
+      });
+      return
+    }
+    let nextTodos = [...todos]
+    console.log(nextTodos)
+    console.log(popup)
+    const todo = nextTodos.find(item => item.id === popup.updateID)
+    todo.title = title
+    todo.content = content
+    todo.dueDate = dueDate
+
+    this.setState({
+      title: '',
+      content: '',
+      dueDate: '',
+      todos: nextTodos
+    });
+    Alert.success('<h4>수정<h4>', {
+      position: 'top-right',
+      effect: 'slide',
+      html: true
+    });
+    this.handleClose()
+  }
+  handleOpen = (id) =>{
+    const nextPopup = {...this.state.popup}
+    if (typeof(id) === "object") {
+      nextPopup.flag = true
+      nextPopup.state = 'create'
+      this.setState({
+        popup: nextPopup
+      })
+    }
+    else {
+      const todo = this.state.todos.find(item => item.id === id)
+      nextPopup.flag = true
+      nextPopup.state = 'update'
+      nextPopup.updateID = id
+      this.setState({
+        title: todo.title,
+        content: todo.content,
+        dueDate: todo.dueDate,
+        popup: nextPopup
+      })
+    }
+  }
+  handleClose = () => {
+    const { popup } = this.state
+    const nextPopup = {...popup}
+    nextPopup.flag = false
+    nextPopup.state = ''
+    nextPopup.updateID = -1
+    this.setState({
+      title: '',
+      content: '',
+      dueDate: '',
+      popup: nextPopup
     })
   }
   render() {
-    const { title, content, dueDate, todos } = this.state;
+    const { title, content, dueDate, todos, popup } = this.state;
     const {
       handleChange,
       handleCreate,
@@ -174,30 +214,39 @@ class App extends Component {
       handleRemove,
       handlePriority,
       handleDate,
-      handleUpdate
+      handleUpdate,
+      handleOpen
     } = this;
 
     return (
       <div>
         <TodoListTemplate form={
         <Form
-          title={title}
-          content={content}
-          dueDate={dueDate}
-          onKeyPress={handleKeyPress}
-          onChange={handleChange}
-          onCreate={handleCreate}
-          onDate={handleDate}
+          onOpen={handleOpen}
         />}>
           <TodoItemList
             todos={todos}
             onToggle={handleToggle}
             onRemove={handleRemove}
-            onUpdate={handleUpdate}
+            onOpen={handleOpen}
             onPriority={handlePriority}
           />
         </TodoListTemplate>
         <Alert stack={true} timeout={3000} />
+        {
+          popup.flag &&
+          <Popup
+            popup={popup}
+            title={title}
+            content={content}
+            dueDate={dueDate}
+            onKeyPress={handleKeyPress}
+            onChange={handleChange}
+            onCreate={handleCreate}
+            onDate={handleDate}
+            onUpdate={handleUpdate}
+          />
+        }
       </div>
     );
   }

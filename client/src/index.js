@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './common/css/Base.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import "react-datepicker/dist/react-datepicker.css";
 import './include/bootstrap';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';

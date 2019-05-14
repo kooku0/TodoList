@@ -7,10 +7,17 @@ class TodoItem extends Component {
   // }
   
   render() {
-    const { title, content, dueDate, checked, id, onToggle, onRemove, onUpdate, onPriority } = this.props;
+    const { title, content, dueDate, checked, id, onToggle, onRemove, onOpen, onPriority } = this.props;
     
     // console.log(id);
-
+    const dateFunc = () => {
+      let pickedDate = ''
+      if (dueDate !== ''){
+        const date = new Date(Date.parse(dueDate))
+        pickedDate = date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
+      }
+      return pickedDate
+    }
     return (
       <div className="todo-item" onClick={() => onToggle(id)}>
         <div className="arrows" onClick={(e) => {e.stopPropagation(); onPriority(id, "down")}}>
@@ -19,7 +26,7 @@ class TodoItem extends Component {
         </div>
         <div className={`todo-text ${ checked ? 'checked' : '' }`}>
           { dueDate !== '' &&
-            <div className="dueDate">{dueDate}</div>
+            <div className="dueDate">{dateFunc()}</div>
           }
           <div><h5><strong>{title}</strong></h5></div>
           <div>{content}</div>
@@ -38,7 +45,7 @@ class TodoItem extends Component {
           className="update"
           onClick={(e) => {
             e.stopPropagation(); // onToggle 이 실행되지 않도록 함
-            onUpdate(id)
+            onOpen(id)
           }
         }>수정</div>
         
