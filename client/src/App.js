@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
 import TodoListTemplate from './components/TodoListTemplate';
-import Form from './components/Form';
 import TodoItemList from './components/TodoItemList';
 import Popup from './components/Popup'
+import Form from './components/Form';
+import * as API from './util/TodoAPI'
+
 import Alert from 'react-s-alert';
 
 class App extends Component {
 
-  id = 3;
-  priority = 3;
+  // _id = 3;
+  priority = 0;
   state = {
     title: '',
     content: '',
     dueDate: '',
     todos: [
-      { id: 0, title: ' 리액트 소개0', content: '단방향 바인딩', dueDate: '', checked: false },
-      { id: 1, title: ' 리액트 소개1', content: '단방향 바인딩', dueDate: '', checked: true },
-      { id: 2, title: ' 리액트 소개2', content: '단방향 바인딩', dueDate: '', checked: false }
+      // { _id: 0, title: ' 리액트 소개0', content: '단방향 바인딩', dueDate: '', checked: false, priority: 0 },
+      // { _id: 1, title: ' 리액트 소개1', content: '단방향 바인딩', dueDate: '', checked: true, priority: 1 },
+      // { _id: 2, title: ' 리액트 소개2', content: '단방향 바인딩', dueDate: '', checked: false, priority: 2 }
     ],
     popup: {
       flag: false,
@@ -24,27 +26,42 @@ class App extends Component {
       updateID: -1
     }
   }
-  handlePriority = (id, arrow) => {
+  async componentDidMount () {
+    let response = await API.GetTodos()
+    if (response.err === undefined){
+      await console.log(response)
+      this.priority = await response.reduce((previous, current) => {
+        return previous.priority > current.priority ? previous.priority : current.priority
+      })
+      this.priority++
+      await this.setState({
+        todos: response
+      })
+    }
+  }
+  handlePriority = (_id, arrow) => {
     const { todos } = this.state
     const nextTodos = [...todos]
-    const itemIdx = nextTodos.findIndex(item => item.id === id)
+    const itemIdx = nextTodos.findIndex(item => item._id === _id)
     
     if (arrow === 'up') {
       if (itemIdx === 0) return
       else {
-        nextTodos[itemIdx].id = itemIdx - 1
-        nextTodos[itemIdx - 1].id = itemIdx
+        const tmp = nextTodos[itemIdx].priority
+        nextTodos[itemIdx].priority = nextTodos[itemIdx - 1].priority
+        nextTodos[itemIdx - 1].priority = tmp
       }
     }
     else {
       if (itemIdx === todos.length - 1) return
       else {
-        nextTodos[itemIdx].id = itemIdx + 1
-        nextTodos[itemIdx + 1].id = itemIdx
+        const tmp = nextTodos[itemIdx].priority
+        nextTodos[itemIdx].priority = nextTodos[itemIdx + 1].priority
+        nextTodos[itemIdx + 1].priority = tmp
       }
     }
     nextTodos.sort((a, b) => {
-      if(a.id > b.id) return 1
+      if(a.priority > b.priority) return 1
       else return -1
     })
     
@@ -58,7 +75,7 @@ class App extends Component {
     });
   }
 
-  handleCreate = () => {
+  handleCreate = async () => {
     const { title, content, dueDate, todos } = this.state
     if (title === '' || content === '') {
       Alert.warning('<h4>빈칸을 채우세요<h4>title과 content는 필수', {
@@ -68,31 +85,21 @@ class App extends Component {
       });
       return
     }
-    // let pickedDate = ''
-    // if (dueDate !== ''){
-    //   const date = new Date(Date.parse(dueDate))
-    //   pickedDate = date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
-    // }
-
-    this.setState({
-      title: '',
-      content: '',
-      dueDate: '',
-      todos: todos.concat({
-        id: this.id++,
-        title: title,
-        dueDate: dueDate,
-        content: content,
-        checked: false,
-        priority: this.priority++
+    await this.handleClose()
+    let response = await API.CreateTodo({title: title, content: content, dueDate: dueDate, checked: false, priority: this.priority++})
+    await console.log(response)
+    if (response.result === 1) {
+      await this.setState({
+        todos: todos.concat({
+          ...response.todo
+        })
       })
-    });
-    Alert.info('<h4>등록<h4>', {
-      position: 'top-right',
-      effect: 'slide',
-      html: true
-    });
-    this.handleClose()
+      await Alert.info('<h4>등록<h4>', {
+        position: 'top-right',
+        effect: 'slide',
+        html: true
+      });
+    }
   }
   handleDate = (date) => {
     this.setState({
@@ -106,12 +113,12 @@ class App extends Component {
     }
   }
 
-  handleToggle = (id) => {
+  handleToggle = async (_id) => {
     console.log(this.state.todos)
     const { todos } = this.state;
 
     //파라미터로 받은 id를 가지고 몇번째 아이템인지 찾습니다.
-    const index = todos.findIndex(todo => todo.id === id);
+    const index = todos.findIndex(todo => todo._id === _id);
     const selected = todos[index]; // 선택한 객체
 
     const nextTodos = [...todos]; // 배열을 복사
@@ -127,12 +134,14 @@ class App extends Component {
     });
   }
 
-  handleRemove = (id) => {
+  handleRemove = async (_id) => {
+    await API.DeleteTodo(_id)
     const { todos } = this.state;
-    this.setState({
-      todos: todos.filter(todo => todo.id !== id)
+    
+    await this.setState({
+      todos: todos.filter(todo => todo._id !== _id)
     });
-    Alert.info('<h4>삭제<h4>', {
+    await Alert.info('<h4>삭제<h4>', {
       position: 'top-right',
       effect: 'slide',
       html: true
@@ -151,7 +160,7 @@ class App extends Component {
     let nextTodos = [...todos]
     console.log(nextTodos)
     console.log(popup)
-    const todo = nextTodos.find(item => item.id === popup.updateID)
+    const todo = nextTodos.find(item => item._id === popup.updateID)
     todo.title = title
     todo.content = content
     todo.dueDate = dueDate
@@ -169,9 +178,9 @@ class App extends Component {
     });
     this.handleClose()
   }
-  handleOpen = (id) =>{
+  handleOpen = (_id) =>{
     const nextPopup = {...this.state.popup}
-    if (typeof(id) === "object") {
+    if (typeof(_id) === "object") {
       nextPopup.flag = true
       nextPopup.state = 'create'
       this.setState({
@@ -179,10 +188,10 @@ class App extends Component {
       })
     }
     else {
-      const todo = this.state.todos.find(item => item.id === id)
+      const todo = this.state.todos.find(item => item._id === _id)
       nextPopup.flag = true
       nextPopup.state = 'update'
-      nextPopup.updateID = id
+      nextPopup.updateID = _id
       this.setState({
         title: todo.title,
         content: todo.content,

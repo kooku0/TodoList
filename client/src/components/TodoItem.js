@@ -3,13 +3,13 @@ import React, { Component } from 'react';
 class TodoItem extends Component {
 
   // shouldComponentUpdate(nextProps, nextState) {
-  //   return (this.props.checked !== nextProps.checked) || (this.props.id !== nextProps.id);
+  //   return (this.props.checked !== nextProps.checked) || (this.props._id !== nextProps._id);
   // }
   
   render() {
-    const { title, content, dueDate, checked, id, onToggle, onRemove, onOpen, onPriority } = this.props;
+    const { title, content, dueDate, checked, _id, onToggle, onRemove, onOpen, onPriority } = this.props;
     
-    // console.log(id);
+    // console.log(_id);
     const dateFunc = () => {
       let pickedDate = ''
       if (dueDate !== ''){
@@ -19,13 +19,13 @@ class TodoItem extends Component {
       return pickedDate
     }
     return (
-      <div className="todo-item" onClick={() => onToggle(id)}>
-        <div className="arrows" onClick={(e) => {e.stopPropagation(); onPriority(id, "down")}}>
-          <div className="arrow up" onClick={(e) => {e.stopPropagation(); onPriority(id, "up")}}/>
+      <div className="todo-item" onClick={() => onToggle(_id)}>
+        <div className="arrows" onClick={(e) => {e.stopPropagation(); onPriority(_id, "down")}}>
+          <div className="arrow up" onClick={(e) => {e.stopPropagation(); onPriority(_id, "up")}}/>
           <div className="arrow down"/>
         </div>
         <div className={`todo-text ${ checked ? 'checked' : '' }`}>
-          { dueDate !== '' &&
+          { dueDate !== undefined &&
             <div className="dueDate">{dateFunc()}</div>
           }
           <div><h5><strong>{title}</strong></h5></div>
@@ -38,14 +38,14 @@ class TodoItem extends Component {
           className="remove"
           onClick={(e) => {
             e.stopPropagation(); // onToggle 이 실행되지 않도록 함
-            onRemove(id)
+            onRemove(_id)
           }
         }>삭제</div>
         <div
           className="update"
           onClick={(e) => {
             e.stopPropagation(); // onToggle 이 실행되지 않도록 함
-            onOpen(id)
+            onOpen(_id)
           }
         }>수정</div>
         

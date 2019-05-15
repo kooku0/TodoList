@@ -3,8 +3,7 @@ import { confirmAlert } from 'react-confirm-alert'; // Import
 import DatePicker from "react-datepicker";
 
 class Popup extends Component {
-  
-  createPopup(){
+  createPopup = () => {
     const { popup, title, content, dueDate, onChange, onCreate, onDate, onUpdate } = this.props
     confirmAlert({
         customUI: ({ onClose }) => {

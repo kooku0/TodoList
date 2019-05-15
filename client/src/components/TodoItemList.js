@@ -11,9 +11,9 @@ class TodoItemList extends Component {
     const { todos, onToggle, onRemove, onPriority, onOpen } = this.props;
 
     const todoList = todos.map(
-      ({id, title, content, dueDate, checked}) => (
+      ({_id, title, content, dueDate, checked}) => (
         <TodoItem
-          id={id}
+          _id={_id}
           title={title}
           dueDate={dueDate}
           content={content}
@@ -22,7 +22,7 @@ class TodoItemList extends Component {
           onRemove={onRemove}
           onPriority={onPriority}
           onOpen={onOpen}
-          key={id}
+          key={_id}
         />
       )
     );
