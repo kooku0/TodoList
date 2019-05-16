@@ -96,7 +96,7 @@
   -ms-transform: rotate(180deg) translate(0px, 15px) translate(0px, 15px);
 }
 
-.dueDate{
+.deadline{
   margin-bottom: 5px;
   color: red;
 }

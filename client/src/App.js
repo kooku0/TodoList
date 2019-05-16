@@ -14,11 +14,11 @@ class App extends Component {
   state = {
     title: '',
     content: '',
-    dueDate: '',
+    deadline: '',
     todos: [
-      // { _id: 0, title: ' 리액트 소개0', content: '단방향 바인딩', dueDate: '', checked: false, priority: 0 },
-      // { _id: 1, title: ' 리액트 소개1', content: '단방향 바인딩', dueDate: '', checked: true, priority: 1 },
-      // { _id: 2, title: ' 리액트 소개2', content: '단방향 바인딩', dueDate: '', checked: false, priority: 2 }
+      // { _id: 0, title: ' 리액트 소개0', content: '단방향 바인딩', deadline: '', checked: false, priority: 0 },
+      // { _id: 1, title: ' 리액트 소개1', content: '단방향 바인딩', deadline: '', checked: true, priority: 1 },
+      // { _id: 2, title: ' 리액트 소개2', content: '단방향 바인딩', deadline: '', checked: false, priority: 2 }
     ],
     popup: {
       flag: false,
@@ -29,31 +29,35 @@ class App extends Component {
   async componentDidMount () {
     let response = await API.GetTodos()
     if (response.err === undefined){
-      await console.log(response)
-      this.priority = await response.reduce((previous, current) => {
-        return previous.priority > current.priority ? previous.priority : current.priority
-      })
+      console.log(response)
+      
       await response.forEach(todo => {
-        this.dueDateCheck(todo.dueDate, todo.title)
-        return todo.dueDate = new Date(todo.dueDate)
+        this.deadlineCheck(todo.deadline, todo.title)
+        this.priority = todo.priority > this.priority ? todo.priority : this.priority
+        return todo.deadline === undefined ? todo.deadline = '' : todo.deadline = new Date(todo.deadline)
       });
       this.priority++
+      await response.sort((a, b) => {
+        if(a.priority > b.priority) return 1
+        else return -1
+      })
       await this.setState({
         todos: response
       })
     }
   }
-  handlePriority = (_id, arrow) => {
+  handlePriority = async (_id, arrow) => {
     const { todos } = this.state
     const nextTodos = [...todos]
     const itemIdx = nextTodos.findIndex(item => item._id === _id)
-    
     if (arrow === 'up') {
       if (itemIdx === 0) return
       else {
         const tmp = nextTodos[itemIdx].priority
         nextTodos[itemIdx].priority = nextTodos[itemIdx - 1].priority
         nextTodos[itemIdx - 1].priority = tmp
+        await API.UpdateTodo(nextTodos[itemIdx]._id, {priority: nextTodos[itemIdx].priority})
+        await API.UpdateTodo(nextTodos[itemIdx - 1]._id, {priority: nextTodos[itemIdx - 1].priority})
       }
     }
     else {
@@ -62,14 +66,16 @@ class App extends Component {
         const tmp = nextTodos[itemIdx].priority
         nextTodos[itemIdx].priority = nextTodos[itemIdx + 1].priority
         nextTodos[itemIdx + 1].priority = tmp
+        await API.UpdateTodo(nextTodos[itemIdx]._id, {priority: nextTodos[itemIdx].priority})
+        await API.UpdateTodo(nextTodos[itemIdx + 1]._id, {priority: nextTodos[itemIdx + 1].priority})
       }
     }
-    nextTodos.sort((a, b) => {
+    await nextTodos.sort((a, b) => {
       if(a.priority > b.priority) return 1
       else return -1
     })
     
-    this.setState({
+    await this.setState({
       todos: nextTodos
     })
   }
@@ -80,7 +86,7 @@ class App extends Component {
   }
 
   handleCreate = async () => {
-    const { title, content, dueDate, todos } = this.state
+    const { title, content, deadline, todos } = this.state
     if (title === '' || content === '') {
       Alert.warning('<h4>빈칸을 채우세요</h4>title과 content는 필수', {
         position: 'top-right',
@@ -90,12 +96,13 @@ class App extends Component {
       return
     }
     await this.handleClose()
-    let response = await API.CreateTodo({title: title, content: content, dueDate: dueDate, checked: false, priority: this.priority++})
+    let response = await API.CreateTodo({title: title, content: content, deadline: deadline===''?null:deadline, checked: false, priority: this.priority++})
     await console.log(response)
     if (response.result === 1) {
       await this.setState({
         todos: todos.concat({
-          ...response.todo
+          ...response.todo,
+          deadline: response.todo.deadline === undefined ? '' : new Date(response.todo.deadline)
         })
       })
       await Alert.info('<h4>등록</h4>', {
@@ -103,12 +110,17 @@ class App extends Component {
         effect: 'slide',
         html: true
       });
-      await this.dueDateCheck(response.todo.dueDate, response.todo.title)
+      await this.deadlineCheck(response.todo.deadline, response.todo.title)
     }
+  }
+  removeDate = () => {
+    this.setState({
+      deadline: ''
+    })
   }
   handleDate = (date) => {
     this.setState({
-      dueDate: date
+      deadline: date
     })
   }
   handleKeyPress = (e) => {
@@ -155,7 +167,7 @@ class App extends Component {
     });
   }
   handleUpdate = async () => {
-    const { title, content, dueDate, todos, popup } = this.state
+    const { title, content, deadline, todos, popup } = this.state
     if (title === '' || content === '') {
       Alert.warning('<h4>빈칸을 채우세요</h4>title과 content는 필수', {
         position: 'top-right',
@@ -165,17 +177,17 @@ class App extends Component {
       return
     }
     await this.handleClose()
-    let response = await API.UpdateTodo(popup.updateID, {title, content, dueDate})
+    let response = await API.UpdateTodo(popup.updateID, {title, content, deadline: deadline===''?null:deadline})
     if (response.error === undefined) {
       let nextTodos = [...todos]
       const todo = await nextTodos.find(item => item._id === popup.updateID)
       todo.title = title
       todo.content = content
-      todo.dueDate = dueDate
+      todo.deadline = deadline
       await this.setState({
         title: '',
         content: '',
-        dueDate: '',
+        deadline: '',
         todos: nextTodos
       });
       await Alert.success('<h4>수정</h4>', {
@@ -183,11 +195,11 @@ class App extends Component {
         effect: 'slide',
         html: true
       });
-      await this.dueDateCheck(todo.dueDate, todo.title)
+      await this.deadlineCheck(todo.deadline, todo.title)
     }
   }
-  dueDateCheck = (dueDate, title) => {
-    if (Date.parse(dueDate) < Date.now()) {
+  deadlineCheck = (deadline, title) => {
+    if (Date.parse(deadline) < Date.now()) {
       Alert.warning(`<h4>${title}</h4>의 마감일이 지났습니다.`, {
         position: 'top-right',
         effect: 'slide',
@@ -212,7 +224,7 @@ class App extends Component {
       this.setState({
         title: todo.title,
         content: todo.content,
-        dueDate: todo.dueDate,
+        deadline: todo.deadline,
         popup: nextPopup
       })
     }
@@ -226,12 +238,12 @@ class App extends Component {
     this.setState({
       title: '',
       content: '',
-      dueDate: '',
+      deadline: '',
       popup: nextPopup
     })
   }
   render() {
-    const { title, content, dueDate, todos, popup } = this.state;
+    const { title, content, deadline, todos, popup } = this.state;
     const {
       handleChange,
       handleCreate,
@@ -241,7 +253,8 @@ class App extends Component {
       handlePriority,
       handleDate,
       handleUpdate,
-      handleOpen
+      handleOpen,
+      removeDate
     } = this;
 
     return (
@@ -265,12 +278,13 @@ class App extends Component {
             popup={popup}
             title={title}
             content={content}
-            dueDate={dueDate}
+            deadline={deadline}
             onKeyPress={handleKeyPress}
             onChange={handleChange}
             onCreate={handleCreate}
             onDate={handleDate}
             onUpdate={handleUpdate}
+            removeDate={removeDate}
           />
         }
       </div>

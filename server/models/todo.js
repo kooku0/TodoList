@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var todoSchema = new Schema({
     title: String,
     content: String,
-    dueDate: Date,
+    deadline: Date,
     checked: Boolean,
     priority: Number
 });

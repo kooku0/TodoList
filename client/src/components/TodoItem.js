@@ -7,13 +7,14 @@ class TodoItem extends Component {
   // }
   
   render() {
-    const { title, content, dueDate, checked, _id, onToggle, onRemove, onOpen, onPriority } = this.props;
+    const { title, content, deadline, checked, _id, onToggle, onRemove, onOpen, onPriority } = this.props;
     
     // console.log(_id);
     const dateFunc = () => {
       let pickedDate = ''
-      if (dueDate !== ''){
-        const date = new Date(Date.parse(dueDate))
+      console.log(deadline)
+      if (deadline !== '') {
+        const date = new Date(Date.parse(deadline))
         pickedDate = date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
       }
       return pickedDate
@@ -25,8 +26,8 @@ class TodoItem extends Component {
           <div className="arrow down"/>
         </div>
         <div className={`todo-text ${ checked ? 'checked' : '' }`}>
-          { dueDate !== undefined &&
-            <div className="dueDate">{dateFunc()}</div>
+          { deadline !== undefined &&
+            <div className="deadline">{dateFunc()}</div>
           }
           <div><h5><strong>{title}</strong></h5></div>
           <div>{content}</div>

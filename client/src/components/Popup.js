@@ -4,13 +4,14 @@ import DatePicker from "react-datepicker";
 
 class Popup extends Component {
   createPopup = () => {
-    const { popup, title, content, dueDate, onChange, onCreate, onDate, onUpdate } = this.props
+    const { popup, title, content, deadline, onChange, onCreate, onDate, onUpdate, removeDate } = this.props
     confirmAlert({
         customUI: ({ onClose }) => {
           return (
             <div className='custom-ui'>
-            <h1>INPUTBOX BOX</h1>
+            <h1>{popup.type}</h1>
               <div>
+                <h3>title</h3>
                 <input
                   type="text"
                   name="title"
@@ -18,15 +19,17 @@ class Popup extends Component {
                   value={title}
                   onChange={onChange}
                 />
+                <h3>content</h3>
                 <textarea
                   name="content"
                   value={content}
                   onChange={onChange}
                 />
+                <h3>deadline</h3>
                 <DatePicker
-                  selected={dueDate}
+                  selected={deadline}
                   onChange={onDate}
-                />
+                /><p className="remove-mark" onClick={removeDate}>&times;</p>
               </div>
               <button onClick={() => {
                   onClose()

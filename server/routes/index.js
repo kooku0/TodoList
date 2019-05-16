@@ -23,8 +23,8 @@ module.exports = function(app, Todo)
         console.log(req.body)
         todo.title = req.body.title;
         todo.content = req.body.content;
-        if (req.body.dueDate !== '')
-            todo.dueDate = new Date(req.body.dueDate);
+        if (req.body.deadline !== null)
+            todo.deadline = new Date(req.body.deadline);
         todo.checked = req.body.checked;
         todo.priority = req.body.priority;
 
@@ -41,9 +41,12 @@ module.exports = function(app, Todo)
 
     // UPDATE THE TODO
     app.put('/api/todos/:todo_id', function(req, res){
-        Todo.update({ _id: req.params.todo_id }, { $set: req.body }, function(err, output){
+        if (req.body.deadline === undefined) {
+            Todo.update({ _id: req.params.todo_id }, { $unset: {deadline: ""}}, function(err, output){console.log(output)})
+        }
+        Todo.update({ _id: req.params.todo_id }, { $set: req.body }, function(err, output)
+        {
             if(err) res.status(500).json({ error: 'database failure' });
-            console.log(output);
             if(!output.n) return res.status(404).json({ error: 'todo not found' });
             res.json( { message: 'todo updated' } );
         })
