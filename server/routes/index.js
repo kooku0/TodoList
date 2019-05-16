@@ -41,7 +41,7 @@ module.exports = function(app, Todo)
 
     // UPDATE THE TODO
     app.put('/api/todos/:todo_id', function(req, res){
-        Todo.update({ _id: req.params.book_id }, { $set: req.body }, function(err, output){
+        Todo.update({ _id: req.params.todo_id }, { $set: req.body }, function(err, output){
             if(err) res.status(500).json({ error: 'database failure' });
             console.log(output);
             if(!output.n) return res.status(404).json({ error: 'todo not found' });

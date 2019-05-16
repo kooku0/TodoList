@@ -33,6 +33,10 @@ class App extends Component {
       this.priority = await response.reduce((previous, current) => {
         return previous.priority > current.priority ? previous.priority : current.priority
       })
+      await response.forEach(todo => {
+        this.dueDateCheck(todo.dueDate, todo.title)
+        return todo.dueDate = new Date(todo.dueDate)
+      });
       this.priority++
       await this.setState({
         todos: response
@@ -78,7 +82,7 @@ class App extends Component {
   handleCreate = async () => {
     const { title, content, dueDate, todos } = this.state
     if (title === '' || content === '') {
-      Alert.warning('<h4>빈칸을 채우세요<h4>title과 content는 필수', {
+      Alert.warning('<h4>빈칸을 채우세요</h4>title과 content는 필수', {
         position: 'top-right',
         effect: 'slide',
         html: true
@@ -94,11 +98,12 @@ class App extends Component {
           ...response.todo
         })
       })
-      await Alert.info('<h4>등록<h4>', {
+      await Alert.info('<h4>등록</h4>', {
         position: 'top-right',
         effect: 'slide',
         html: true
       });
+      await this.dueDateCheck(response.todo.dueDate, response.todo.title)
     }
   }
   handleDate = (date) => {
@@ -114,24 +119,26 @@ class App extends Component {
   }
 
   handleToggle = async (_id) => {
-    console.log(this.state.todos)
     const { todos } = this.state;
 
     //파라미터로 받은 id를 가지고 몇번째 아이템인지 찾습니다.
     const index = todos.findIndex(todo => todo._id === _id);
     const selected = todos[index]; // 선택한 객체
 
-    const nextTodos = [...todos]; // 배열을 복사
+    const response = await API.UpdateTodo(selected._id, {checked: !selected.checked})
+    if (response.error === undefined) {
+      const nextTodos = [...todos]; // 배열을 복사
 
-    //기존의 값들을 복사하고, checked 값을 덮어쓰기
-    nextTodos[index] = {
-      ...selected,
-      checked: !selected.checked
-    };
-
-    this.setState({
-      todos: nextTodos
-    });
+      //기존의 값들을 복사하고, checked 값을 덮어쓰기
+      nextTodos[index] = {
+        ...selected,
+        checked: !selected.checked
+      };
+  
+      await this.setState({
+        todos: nextTodos
+      });
+    }
   }
 
   handleRemove = async (_id) => {
@@ -141,42 +148,52 @@ class App extends Component {
     await this.setState({
       todos: todos.filter(todo => todo._id !== _id)
     });
-    await Alert.info('<h4>삭제<h4>', {
+    await Alert.info('<h4>삭제</h4>', {
       position: 'top-right',
       effect: 'slide',
       html: true
     });
   }
-  handleUpdate = () => {
+  handleUpdate = async () => {
     const { title, content, dueDate, todos, popup } = this.state
     if (title === '' || content === '') {
-      Alert.warning('<h4>빈칸을 채우세요<h4>title과 content는 필수', {
+      Alert.warning('<h4>빈칸을 채우세요</h4>title과 content는 필수', {
         position: 'top-right',
         effect: 'slide',
         html: true
       });
       return
     }
-    let nextTodos = [...todos]
-    console.log(nextTodos)
-    console.log(popup)
-    const todo = nextTodos.find(item => item._id === popup.updateID)
-    todo.title = title
-    todo.content = content
-    todo.dueDate = dueDate
-
-    this.setState({
-      title: '',
-      content: '',
-      dueDate: '',
-      todos: nextTodos
-    });
-    Alert.success('<h4>수정<h4>', {
-      position: 'top-right',
-      effect: 'slide',
-      html: true
-    });
-    this.handleClose()
+    await this.handleClose()
+    let response = await API.UpdateTodo(popup.updateID, {title, content, dueDate})
+    if (response.error === undefined) {
+      let nextTodos = [...todos]
+      const todo = await nextTodos.find(item => item._id === popup.updateID)
+      todo.title = title
+      todo.content = content
+      todo.dueDate = dueDate
+      await this.setState({
+        title: '',
+        content: '',
+        dueDate: '',
+        todos: nextTodos
+      });
+      await Alert.success('<h4>수정</h4>', {
+        position: 'top-right',
+        effect: 'slide',
+        html: true
+      });
+      await this.dueDateCheck(todo.dueDate, todo.title)
+    }
+  }
+  dueDateCheck = (dueDate, title) => {
+    if (Date.parse(dueDate) < Date.now()) {
+      Alert.warning(`<h4>${title}</h4>의 마감일이 지났습니다.`, {
+        position: 'top-right',
+        effect: 'slide',
+        html: true
+      });
+    }
   }
   handleOpen = (_id) =>{
     const nextPopup = {...this.state.popup}

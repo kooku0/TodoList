@@ -11,7 +11,7 @@ export async function CreateTodo (todo) {
   })
   .catch(error => {
       console.log(error);
-      Alert.error(`<h4>Create Todo 에러<h4> ${error}`, {
+      Alert.error(`<h4>Create Todo 에러</h4> ${error}`, {
       position: 'top-right',
       effect: 'slide',
       html: true
@@ -28,7 +28,7 @@ export async function GetTodos () {
   })
   .catch(error => {
       console.log(error);
-      Alert.error(`<h4>GET Todos 에러<h4> ${error}`, {
+      Alert.error(`<h4>GET Todos 에러</h4> ${error}`, {
       position: 'top-right',
       effect: 'slide',
       html: true
@@ -37,17 +37,17 @@ export async function GetTodos () {
   return response;
 }
 
-export async function UpdateTodo (_id) {
+export async function UpdateTodo (_id, todo) {
   let response;
   await axios.put(`http://localhost:8080/api/todos/${_id}`, {
-
+    ...todo
   })
   .then(res => {
     response = res.data;
   })
   .catch(error => {
       console.log(error);
-      Alert.error(`<h4>Update Todo 에러<h4> ${error}`, {
+      Alert.error(`<h4>Update Todo 에러</h4> ${error}`, {
       position: 'top-right',
       effect: 'slide',
       html: true
@@ -64,7 +64,7 @@ export async function DeleteTodo (_id) {
   })
   .catch(error => {
       console.log(error);
-      Alert.error(`<h4>Delete Todo 에러<h4> ${error}`, {
+      Alert.error(`<h4>Delete Todo 에러</h4> ${error}`, {
       position: 'top-right',
       effect: 'slide',
       html: true
