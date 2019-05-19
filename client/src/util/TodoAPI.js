@@ -38,7 +38,7 @@ export async function GetTodos () {
 }
 
 export async function UpdateTodo (_id, todo) {
-  if (todo.deadline === null) delete todo.deadline
+  if (todo.deadline === null || todo.deadline === '') delete todo.deadline
   let response;
   await axios.put(`http://localhost:8080/api/todos/${_id}`, {
     ...todo

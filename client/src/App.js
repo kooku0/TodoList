@@ -137,7 +137,7 @@ class App extends Component {
     const index = todos.findIndex(todo => todo._id === _id);
     const selected = todos[index]; // 선택한 객체
 
-    const response = await API.UpdateTodo(selected._id, {checked: !selected.checked})
+    const response = await API.UpdateTodo(selected._id, {...selected, checked: !selected.checked})
     if (response.error === undefined) {
       const nextTodos = [...todos]; // 배열을 복사
 
