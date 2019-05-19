@@ -56,8 +56,8 @@ class App extends Component {
         const tmp = nextTodos[itemIdx].priority
         nextTodos[itemIdx].priority = nextTodos[itemIdx - 1].priority
         nextTodos[itemIdx - 1].priority = tmp
-        await API.UpdateTodo(nextTodos[itemIdx]._id, {priority: nextTodos[itemIdx].priority})
-        await API.UpdateTodo(nextTodos[itemIdx - 1]._id, {priority: nextTodos[itemIdx - 1].priority})
+        await API.UpdateTodo(nextTodos[itemIdx]._id, {...nextTodos[itemIdx], priority: nextTodos[itemIdx].priority})
+        await API.UpdateTodo(nextTodos[itemIdx - 1]._id, {...nextTodos[itemIdx - 1], priority: nextTodos[itemIdx - 1].priority})
       }
     }
     else {
@@ -66,8 +66,8 @@ class App extends Component {
         const tmp = nextTodos[itemIdx].priority
         nextTodos[itemIdx].priority = nextTodos[itemIdx + 1].priority
         nextTodos[itemIdx + 1].priority = tmp
-        await API.UpdateTodo(nextTodos[itemIdx]._id, {priority: nextTodos[itemIdx].priority})
-        await API.UpdateTodo(nextTodos[itemIdx + 1]._id, {priority: nextTodos[itemIdx + 1].priority})
+        await API.UpdateTodo(nextTodos[itemIdx]._id, {...nextTodos[itemIdx], priority: nextTodos[itemIdx].priority})
+        await API.UpdateTodo(nextTodos[itemIdx + 1]._id, {...nextTodos[itemIdx + 1], priority: nextTodos[itemIdx + 1].priority})
       }
     }
     await nextTodos.sort((a, b) => {
