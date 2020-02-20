@@ -1,9 +1,7 @@
 # TodoList
 
 > 프론트앤드: React.js
->
 > 백앤드: Node.js
->
 > DB: MongoDB
 
 ### 요구사항
