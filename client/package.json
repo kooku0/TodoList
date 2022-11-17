@@ -13,7 +13,7 @@
     "react-dom": "^16.7.0",
     "react-popupbox": "^2.0.8",
     "react-s-alert": "^1.4.1",
-    "react-scripts": "2.1.1",
+    "react-scripts": "2.1.8",
     "tether": "^1.4.5"
   },
   "scripts": {
